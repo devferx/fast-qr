@@ -42,7 +42,7 @@ import Copy from '@/components/icons/Copy.astro'
         </p>
       </label>
 
-      <input id="qr-file-input" class="hidden" type="file" />
+      <input id="qr-file-input" class="hidden" type="file" accept="image/*" />
     </div>
   </section>
 </MainLayout>
@@ -53,8 +53,8 @@ import Copy from '@/components/icons/Copy.astro'
   import {
     getImageFromClipboardAsBlob,
     getImageFromClipboardAsImageData,
-  } from '@/utils/clipboard'
-  import { getImageDataFromFile } from '@/utils/file-input'
+  } from '@/utils/clipboard-utils'
+  import { getImageDataFromFile } from '@/utils/image-utils'
 
   const $qrResultContainer = document.getElementById(
     'results-container',
@@ -105,6 +105,8 @@ import Copy from '@/components/icons/Copy.astro'
     updateQRCanvas(image)
 
     const imageData = await getImageFromClipboardAsImageData(pasteEvent)
+    if (!imageData) return
+
     const qrCode = jsQR(imageData.data, imageData.width, imageData.height)
 
     displayQrResult(qrCode?.data)
