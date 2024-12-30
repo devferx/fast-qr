@@ -48,11 +48,13 @@ import Copy from '@/components/icons/Copy.astro'
 </MainLayout>
 
 <script>
+  import jsQR from 'jsqr'
+
   import {
     getImageFromClipboardAsBlob,
     getImageFromClipboardAsImageData,
   } from '@/utils/clipboard'
-  import jsQR from 'jsqr'
+  import { getImageDataFromFile } from '@/utils/file-input'
 
   const $qrResultContainer = document.getElementById(
     'results-container',
@@ -88,56 +90,36 @@ import Copy from '@/components/icons/Copy.astro'
     img.src = URLObj.createObjectURL(image)
   }
 
+  const displayQrResult = (text: string | undefined = 'No QR code found') => {
+    $qrFileLabel.classList.add('hidden')
+    $qrCanvas.classList.remove('hidden')
+    $qrResultContainer.classList.remove('hidden')
+
+    $qrResult.value = text
+  }
+
   window.addEventListener('paste', async function (pasteEvent) {
     const image = getImageFromClipboardAsBlob(pasteEvent)
     if (!image) return
 
     updateQRCanvas(image)
+
     const imageData = await getImageFromClipboardAsImageData(pasteEvent)
     const qrCode = jsQR(imageData.data, imageData.width, imageData.height)
 
-    $qrFileLabel.classList.add('hidden')
-    $qrCanvas.classList.remove('hidden')
-    $qrResultContainer.classList.remove('hidden')
-
-    $qrResult.value = qrCode?.data || 'No QR code found'
+    displayQrResult(qrCode?.data)
   })
 
-  $qrFileInput.addEventListener('change', function (changeEvent: Event) {
+  $qrFileInput.addEventListener('change', async function (changeEvent: Event) {
     const file = ($qrFileInput.files as FileList)[0]
     if (!file) return
 
     updateQRCanvas(file)
-    const reader = new FileReader()
 
-    reader.onload = function (e) {
-      const img = new Image()
-      img.onload = function () {
-        const canvas = document.createElement('canvas')
-        const ctx = canvas.getContext('2d')!
+    const imageData = await getImageDataFromFile(file)
+    const qrCode = jsQR(imageData.data, imageData.width, imageData.height)
 
-        canvas.width = img.width
-        canvas.height = img.height
-        // Draw white background
-        ctx.fillStyle = 'white'
-        ctx.fillRect(0, 0, canvas.width, canvas.height)
-
-        ctx.drawImage(img, 0, 0)
-
-        const imageData = ctx.getImageData(0, 0, img.width, img.height)
-        const qrCode = jsQR(imageData.data, imageData.width, imageData.height)
-
-        $qrFileLabel.classList.add('hidden')
-        $qrCanvas.classList.remove('hidden')
-        $qrResultContainer.classList.remove('hidden')
-
-        $qrResult.value = qrCode?.data || 'No QR code found'
-      }
-
-      img.src = e.target?.result as string
-    }
-
-    reader.readAsDataURL(file)
+    displayQrResult(qrCode?.data)
   })
 
   $copyBtn.addEventListener('click', function () {

@@ -21,7 +21,7 @@ export const getImageFromClipboardAsImageData = (
     if (!image) return null
 
     const canvas = document.createElement('canvas')
-    const ctx = canvas.getContext('2d')
+    const ctx = canvas.getContext('2d')!
 
     const URLObj = window.URL || window.webkitURL
     const img = new Image()
@@ -30,7 +30,7 @@ export const getImageFromClipboardAsImageData = (
       canvas.width = img.width
       canvas.height = img.height
 
-      ctx!.drawImage(img, 0, 0)
+      ctx.drawImage(img, 0, 0)
 
       const imageData = ctx?.getImageData(
         0,
