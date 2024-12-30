@@ -125,6 +125,33 @@ import Copy from '@/components/icons/Copy.astro'
     displayQrResult(qrCode?.data)
   })
 
+  $qrFileLabel.addEventListener('drop', async (event) => {
+    event.preventDefault()
+
+    const file = event.dataTransfer?.files[0]
+    if (!file) return
+
+    updateQRCanvas(file)
+
+    const imageData = await getImageDataFromFile(file)
+    const qrCode = jsQR(imageData.data, imageData.width, imageData.height)
+
+    displayQrResult(qrCode?.data)
+
+    $qrFileLabel.classList.remove('border-blue-500')
+    $qrFileLabel.classList.remove('bg-slate-50')
+  })
+  $qrFileLabel.addEventListener('dragover', (event) => {
+    $qrFileLabel.classList.add('border-blue-500')
+    $qrFileLabel.classList.add('bg-slate-50')
+    event.preventDefault()
+  })
+  $qrFileLabel.addEventListener('dragleave', (event) => {
+    $qrFileLabel.classList.remove('border-blue-500')
+    $qrFileLabel.classList.remove('bg-slate-50')
+    console.log('dragleave')
+  })
+
   $copyBtn.addEventListener('click', function () {
     // Get the text field
     const copyText = $qrResult.value
