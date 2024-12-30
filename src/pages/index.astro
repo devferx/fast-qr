@@ -3,5 +3,56 @@ import MainLayout from '@/layouts/MainLayout.astro'
 ---
 
 <MainLayout>
-  <h1>Hello World</h1>
+  <h1>⚡ QR Fast</h1>
+  <canvas class="border border-black" id="qr-canvas"></canvas>
 </MainLayout>
+
+<script>
+  import jsQR from 'jsqr'
+
+  const retrieveImageFromClipboardAsBlob = (pasteEvent: ClipboardEvent) => {
+    var items = pasteEvent.clipboardData?.items
+    if (!items) return null
+
+    for (let idx = 0; idx < items.length; idx++) {
+      // Skip content if not image
+      if (items[idx].type.indexOf('image') == -1) continue
+
+      const blob = items[idx].getAsFile()
+      return blob
+    }
+
+    return null
+  }
+
+  window.addEventListener('paste', function (pasteEvent) {
+    const image = retrieveImageFromClipboardAsBlob(pasteEvent)
+    if (!image) return
+
+    const $qrCanvas = document.getElementById('qr-canvas') as HTMLCanvasElement
+    const ctx = $qrCanvas.getContext('2d')
+
+    const img = new Image()
+
+    img.onload = function () {
+      $qrCanvas.width = img.width
+      $qrCanvas.height = img.height
+
+      ctx?.drawImage(img, 0, 0)
+
+      const imageData = ctx?.getImageData(
+        0,
+        0,
+        $qrCanvas.width,
+        $qrCanvas.height,
+      ) as ImageData
+
+      const qrCode = jsQR(imageData.data, imageData.width, imageData.height)
+      console.log(qrCode)
+    }
+
+    const URLObj = window.URL || window.webkitURL
+
+    img.src = URLObj.createObjectURL(image)
+  })
+</script>
