@@ -1,32 +1,67 @@
 ---
 import MainLayout from '@/layouts/MainLayout.astro'
+import Copy from '@/components/icons/Copy.astro'
 ---
 
 <MainLayout>
-  <h1>⚡ QR Fast</h1>
-  <canvas class="border border-black" id="qr-canvas"></canvas>
+  <section class="mx-auto mt-3 grid max-w-screen-lg grid-cols-2 gap-6">
+    <div class="flex flex-col gap-3">
+      <h1 class="text-bold text-4xl font-bold">⚡QR Fast</h1>
+      <p>Just paste an image with a QR code and see the magic happen!</p>
+
+      <img class="w-full" src="/assets/vectors/hero.svg" />
+    </div>
+
+    <div class="flex flex-col gap-3">
+      <div class="flex hidden gap-2" id="results-container">
+        <input
+          id="qr-result"
+          class="w-full border border-slate-300 p-2"
+          type="text"
+          readonly
+        />
+
+        <button
+          class="w-fit rounded-md border border-transparent bg-[#F59E0B] p-2 text-white"
+          id="copy-btn"
+        >
+          <Copy />
+        </button>
+      </div>
+      <canvas
+        class="hidden aspect-square w-full border border-black"
+        id="qr-canvas"></canvas>
+
+      <label
+        id="qr-file-label"
+        for="qr-file-input"
+        class="grid aspect-square w-full place-items-center border-[5px] border-dotted border-slate-400"
+      >
+        <p class="text-center text-slate-400">
+          You can paste an image with a QR code here
+        </p>
+      </label>
+
+      <input id="qr-file-input" class="hidden" type="file" />
+    </div>
+  </section>
 </MainLayout>
 
 <script>
+  import { getImageFromClipboardAsBlob } from '@/utils/clipboard'
   import jsQR from 'jsqr'
 
-  const retrieveImageFromClipboardAsBlob = (pasteEvent: ClipboardEvent) => {
-    var items = pasteEvent.clipboardData?.items
-    if (!items) return null
+  const $qrFileLabel = document.getElementById(
+    'qr-file-label',
+  ) as HTMLLabelElement
+  const $qrResultContainer = document.getElementById(
+    'results-container',
+  ) as HTMLDivElement
+  const $qrResult = document.getElementById('qr-result') as HTMLInputElement
+  const $copyBtn = document.getElementById('copy-btn') as HTMLButtonElement
 
-    for (let idx = 0; idx < items.length; idx++) {
-      // Skip content if not image
-      if (items[idx].type.indexOf('image') == -1) continue
-
-      const blob = items[idx].getAsFile()
-      return blob
-    }
-
-    return null
-  }
-
-  window.addEventListener('paste', function (pasteEvent) {
-    const image = retrieveImageFromClipboardAsBlob(pasteEvent)
+  window.addEventListener('paste', async function (pasteEvent) {
+    const image = getImageFromClipboardAsBlob(pasteEvent)
     if (!image) return
 
     const $qrCanvas = document.getElementById('qr-canvas') as HTMLCanvasElement
@@ -48,11 +83,31 @@ import MainLayout from '@/layouts/MainLayout.astro'
       ) as ImageData
 
       const qrCode = jsQR(imageData.data, imageData.width, imageData.height)
-      console.log(qrCode)
+
+      $qrFileLabel.classList.add('hidden')
+      $qrCanvas.classList.remove('hidden')
+      $qrResultContainer.classList.remove('hidden')
+
+      $qrResult.value = qrCode?.data || 'No QR code found'
     }
 
     const URLObj = window.URL || window.webkitURL
 
     img.src = URLObj.createObjectURL(image)
+  })
+
+  $copyBtn.addEventListener('click', function () {
+    // Get the text field
+    const copyText = $qrResult.value
+
+    navigator.clipboard.writeText(copyText).then(
+      function () {
+        alert('✅ Copied to clipboard!')
+      },
+      function (err) {
+        alert('❌ Failed to copy to clipboard!')
+        console.error('Failed to copy to clipboard', err)
+      },
+    )
   })
 </script>
