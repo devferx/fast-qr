@@ -99,6 +99,18 @@ import Copy from '@/components/icons/Copy.astro'
     $qrResult.value = text
   }
 
+  const updateDragZoneStatus = (status: 'DRAG_ACTIVE' | 'DRAG_INACTIVE') => {
+    if (status === 'DRAG_ACTIVE') {
+      $qrFileLabel.classList.add('border-blue-500')
+      $qrFileLabel.classList.add('bg-slate-50')
+    }
+
+    if (status === 'DRAG_INACTIVE') {
+      $qrFileLabel.classList.remove('border-blue-500')
+      $qrFileLabel.classList.remove('bg-slate-50')
+    }
+  }
+
   window.addEventListener('paste', async function (pasteEvent) {
     const image = getImageFromClipboardAsBlob(pasteEvent)
     if (!image) return
@@ -138,17 +150,14 @@ import Copy from '@/components/icons/Copy.astro'
 
     displayQrResult(qrCode?.data)
 
-    $qrFileLabel.classList.remove('border-blue-500')
-    $qrFileLabel.classList.remove('bg-slate-50')
+    updateDragZoneStatus('DRAG_INACTIVE')
   })
   $qrFileLabel.addEventListener('dragover', (event) => {
-    $qrFileLabel.classList.add('border-blue-500')
-    $qrFileLabel.classList.add('bg-slate-50')
+    updateDragZoneStatus('DRAG_ACTIVE')
     event.preventDefault()
   })
   $qrFileLabel.addEventListener('dragleave', (event) => {
-    $qrFileLabel.classList.remove('border-blue-500')
-    $qrFileLabel.classList.remove('bg-slate-50')
+    updateDragZoneStatus('DRAG_INACTIVE')
     console.log('dragleave')
   })
 
