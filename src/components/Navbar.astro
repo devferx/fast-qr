@@ -1,0 +1,43 @@
+---
+import { Image } from 'astro:assets'
+
+import lightning from '@/assets/lightning.png'
+
+const routes = [
+  { label: 'Read QR', path: '/' },
+  { label: 'Generate QR', path: '/generate' },
+]
+---
+
+<header class="bg-white">
+  <div class="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8">
+    <div class="flex h-16 items-center justify-between">
+      <div class="flex-1 md:flex md:items-center md:gap-12">
+        <a class="flex items-center gap-2 text-xl font-bold" href="/">
+          <span class="sr-only">Home</span>
+          <Image src={lightning} alt="Logo" height={40} />
+          <span>Fast QR</span>
+        </a>
+      </div>
+
+      <div class="md:flex md:items-center md:gap-12">
+        <nav aria-label="Global" class="hidden md:block">
+          <ul class="flex items-center gap-6">
+            {
+              routes.map((route) => (
+                <li>
+                  <a
+                    class="text-gray-500 transition hover:text-gray-500/75"
+                    href={route.path}
+                  >
+                    {route.label}
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </div>
+</header>
