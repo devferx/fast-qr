@@ -4,6 +4,58 @@ import MainLayout from '@/layouts/MainLayout.astro'
 
 <MainLayout title="Generate QR Code">
   <section class="mx-auto mt-3 grid max-w-screen-lg gap-3 px-5 sm:grid-cols-2">
-    <h1>Generate QR Code</h1>
+    <div>
+      <h1 class="text-xl font-bold">Generate a QR</h1>
+      <form id="form-qr" class="flex flex-col gap-3">
+        <div class="flex flex-col gap-1">
+          <label class="text-sm" for="text">Text | URL</label>
+          <input
+            class="w-full rounded-md border border-slate-300 p-2"
+            type="text"
+            name="text"
+            id="text"
+            placeholder="Enter text or URL"
+            required
+          />
+        </div>
+        <button
+          class="w-full rounded-md border border-transparent bg-[#F59E0B] p-2 text-white"
+          type="submit">Generate</button
+        >
+      </form>
+    </div>
+
+    <div id="qr-code-container"></div>
   </section>
 </MainLayout>
+
+<script>
+  import QRCode from 'qrcode'
+
+  const $qrCodeContainer = document.getElementById(
+    'qr-code-container',
+  ) as HTMLDivElement
+  const $form = document.getElementById('form-qr') as HTMLFormElement
+
+  const generateQrSVG = (text: string): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      QRCode.toString(text, { type: 'svg' }, (error, string) => {
+        if (error) {
+          reject(error)
+        } else {
+          resolve(string)
+        }
+      })
+    })
+  }
+
+  $form.addEventListener('submit', async (event) => {
+    event.preventDefault()
+
+    const formData = new FormData($form)
+    const text = formData.get('text') as string
+
+    const svg = await generateQrSVG(text)
+    $qrCodeContainer.innerHTML = svg
+  })
+</script>
