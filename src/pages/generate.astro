@@ -39,7 +39,7 @@ import MainLayout from '@/layouts/MainLayout.astro'
 
   const generateQrSVG = (text: string): Promise<string> => {
     return new Promise((resolve, reject) => {
-      QRCode.toString(text, { type: 'svg' }, (error, string) => {
+      QRCode.toString(text, { type: 'svg', margin: 0 }, (error, string) => {
         if (error) {
           reject(error)
         } else {
@@ -47,6 +47,11 @@ import MainLayout from '@/layouts/MainLayout.astro'
         }
       })
     })
+  }
+
+  const getBlobBySvgString = (svgString: string) => {
+    const svgBlob = new Blob([svgString], { type: 'image/svg+xml' })
+    return svgBlob
   }
 
   $form.addEventListener('submit', async (event) => {
@@ -57,5 +62,14 @@ import MainLayout from '@/layouts/MainLayout.astro'
 
     const svg = await generateQrSVG(text)
     $qrCodeContainer.innerHTML = svg
+
+    // const svgBlob = getBlobBySvgString(svg)
+    // await navigator.clipboard.write([
+    //   new window.ClipboardItem({
+    //     [svgBlob.type]: svgBlob,
+    //   }),
+    // ])
+
+    // alert('QR Code copied to clipboard')
   })
 </script>
