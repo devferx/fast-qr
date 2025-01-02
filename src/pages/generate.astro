@@ -38,12 +38,18 @@ import { Image } from 'astro:assets'
         <Image class="w-[300px] blur" src={QRExample} alt="QR Code" />
       </div>
 
-      <div id="actions-container" class="hidden w-full">
+      <div id="actions-container" class="grid hidden w-full grid-cols-2 gap-3">
+        <button
+          id="copy-svg-btn"
+          class="w-full rounded-md border border-transparent bg-[#F59E0B] p-2 text-white"
+        >
+          Copy SVG
+        </button>
         <button
           id="dowload-svg-btn"
           class="w-full rounded-md border border-transparent bg-[#F59E0B] p-2 text-white"
         >
-          Download SVG
+          Download PNG
         </button>
       </div>
     </div>
@@ -60,6 +66,9 @@ import { Image } from 'astro:assets'
     const $actionsContainer = document.getElementById(
       'actions-container',
     ) as HTMLDivElement
+    const $copySvgBtn = document.getElementById(
+      'copy-svg-btn',
+    ) as HTMLButtonElement
     const $downloadSvgBtn = document.getElementById(
       'dowload-svg-btn',
     ) as HTMLButtonElement
@@ -105,6 +114,14 @@ import { Image } from 'astro:assets'
       a.href = url
       a.download = 'qr-code.svg'
       a.click()
+    })
+
+    $copySvgBtn.addEventListener('click', async () => {
+      const svg = $qrCodeContainer.querySelector('svg')!
+      const svgString = new XMLSerializer().serializeToString(svg)
+
+      await navigator.clipboard.writeText(svgString)
+      alert('SVG copied to clipboard')
     })
   </script>
 </MainLayout>
