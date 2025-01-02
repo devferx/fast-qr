@@ -52,6 +52,12 @@ import { Image } from 'astro:assets'
           Download SVG
         </button>
         <button
+          id="copy-png-btn"
+          class="w-full rounded-md border border-transparent bg-[#F59E0B] p-2 text-white"
+        >
+          Copy PNG
+        </button>
+        <button
           id="dowload-png-btn"
           class="w-full rounded-md border border-transparent bg-[#F59E0B] p-2 text-white"
         >
@@ -80,6 +86,9 @@ import { Image } from 'astro:assets'
     ) as HTMLButtonElement
     const $downloadPngBtn = document.getElementById(
       'dowload-png-btn',
+    ) as HTMLButtonElement
+    const $copyPngBtn = document.getElementById(
+      'copy-png-btn',
     ) as HTMLButtonElement
 
     let qrDataUrl = ''
@@ -115,6 +124,17 @@ import { Image } from 'astro:assets'
     const getBlobBySvgString = (svgString: string) => {
       const svgBlob = new Blob([svgString], { type: 'image/svg+xml' })
       return svgBlob
+    }
+
+    const getBlobByDataUrl = (dataUrl: string) => {
+      const base64 = dataUrl.split(',')[1]
+      const binary = atob(base64)
+      const array = []
+      for (let i = 0; i < binary.length; i++) {
+        array.push(binary.charCodeAt(i))
+      }
+      const blob = new Blob([new Uint8Array(array)], { type: 'image/png' })
+      return blob
     }
 
     $form.addEventListener('submit', async (event) => {
@@ -158,6 +178,15 @@ import { Image } from 'astro:assets'
       a.href = qrDataUrl
       a.download = 'qr-code.png'
       a.click()
+    })
+
+    $copyPngBtn.addEventListener('click', async () => {
+      const blob = getBlobByDataUrl(qrDataUrl)
+
+      await navigator.clipboard.write([
+        new ClipboardItem({ 'image/png': blob }),
+      ])
+      alert('PNG copied to clipboard')
     })
   </script>
 </MainLayout>
