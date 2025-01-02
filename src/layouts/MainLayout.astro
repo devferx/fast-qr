@@ -3,9 +3,10 @@ import Navbar from '@/components/Navbar.astro'
 
 interface Props {
   title?: string
+  path?: string
 }
 
-const { title = 'Fast QR' } = Astro.props
+const { title = 'Fast QR', path = '/' } = Astro.props
 ---
 
 <!doctype html>
@@ -18,7 +19,7 @@ const { title = 'Fast QR' } = Astro.props
     <title>{title}</title>
   </head>
   <body>
-    <Navbar />
+    <Navbar currentPath={path} />
     <main>
       <slot />
     </main>

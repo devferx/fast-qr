@@ -3,6 +3,12 @@ import { Image } from 'astro:assets'
 
 import lightning from '@/assets/lightning.png'
 
+interface Props {
+  currentPath?: string
+}
+
+const { currentPath = '/' } = Astro.props
+
 const routes = [
   { label: 'Read QR', path: '/' },
   { label: 'Generate QR', path: '/generate' },
@@ -27,7 +33,10 @@ const routes = [
               routes.map((route) => (
                 <li>
                   <a
-                    class="text-gray-500 transition hover:text-gray-500/75"
+                    class:list={[
+                      'text-gray-500 transition hover:text-gray-500/75',
+                      currentPath === route.path && 'font-semibold text-black',
+                    ]}
                     href={route.path}
                   >
                     {route.label}
