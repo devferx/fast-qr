@@ -49,6 +49,12 @@ import { Image } from 'astro:assets'
           id="dowload-svg-btn"
           class="w-full rounded-md border border-transparent bg-[#F59E0B] p-2 text-white"
         >
+          Download SVG
+        </button>
+        <button
+          id="dowload-png-btn"
+          class="w-full rounded-md border border-transparent bg-[#F59E0B] p-2 text-white"
+        >
           Download PNG
         </button>
       </div>
@@ -72,6 +78,27 @@ import { Image } from 'astro:assets'
     const $downloadSvgBtn = document.getElementById(
       'dowload-svg-btn',
     ) as HTMLButtonElement
+    const $downloadPngBtn = document.getElementById(
+      'dowload-png-btn',
+    ) as HTMLButtonElement
+
+    let qrDataUrl = ''
+
+    const generateQrPng = (text: string): Promise<string> => {
+      return new Promise((resolve, reject) => {
+        QRCode.toDataURL(
+          text,
+          { type: 'image/png', scale: 20, margin: 2 },
+          (err, url) => {
+            if (err) {
+              reject(err)
+            } else {
+              resolve(url)
+            }
+          },
+        )
+      })
+    }
 
     const generateQrSVG = (text: string): Promise<string> => {
       return new Promise((resolve, reject) => {
@@ -102,6 +129,8 @@ import { Image } from 'astro:assets'
         $qrCodeContainer.innerHTML = `<div class="w-full max-w-[300px]">${svg}</div>`
         $actionsContainer.classList.remove('hidden')
       })
+
+      qrDataUrl = await generateQrPng(text)
     })
 
     $downloadSvgBtn.addEventListener('click', () => {
@@ -122,6 +151,13 @@ import { Image } from 'astro:assets'
 
       await navigator.clipboard.writeText(svgString)
       alert('SVG copied to clipboard')
+    })
+
+    $downloadPngBtn.addEventListener('click', () => {
+      const a = document.createElement('a')
+      a.href = qrDataUrl
+      a.download = 'qr-code.png'
+      a.click()
     })
   </script>
 </MainLayout>
